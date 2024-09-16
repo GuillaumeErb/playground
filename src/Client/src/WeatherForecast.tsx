@@ -1,10 +1,16 @@
 import React, { useState, useEffect } from 'react';
 
+interface WeatherForecastContract {
+    date: string;
+    temperatureC: number;
+    summary: string;
+};
+
 function WeatherForecast() {
-    const [forecasts, setForecasts] = useState([]);
+    const [forecasts, setForecasts] = useState<WeatherForecastContract[]>([]);
 
     useEffect(() => {
-        fetch('/weatherforecast')
+        fetch('/api/weatherforecast')
             .then(response => response.json())
             .then(data => setForecasts(data));
     }, []);

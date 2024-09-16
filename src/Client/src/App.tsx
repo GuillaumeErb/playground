@@ -1,5 +1,8 @@
+import React from 'react';
+
 import logo from './logo.svg';
 import './App.css';
+import WeatherForecast from './WeatherForecast';
 
 function App() {
   return (
@@ -17,6 +20,7 @@ function App() {
         >
           Learn React
         </a>
+        <WeatherForecast />
       </header>
     </div>
   );
