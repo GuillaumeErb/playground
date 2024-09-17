@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@azure/msal-browser": "^3.23.0",
+    "@azure/msal-react": "^2.0.22",
+    "@fluentui/react-components": "^9.54.15",
     "azure-maps-control": "^3.3.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -44,8 +47,8 @@
     "@testing-library/user-event": "^13.5.0",
     "@types/jest": "^29.5.13",
     "@types/node": "^22.5.5",
-    "@types/react-dom": "^18.3.0",
     "@types/react": "^18.3.6",
+    "@types/react-dom": "^18.3.0",
     "eslint": "^9.10.0"
   }
 }
