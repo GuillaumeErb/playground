@@ -16,76 +16,72 @@ import {
   FluentProvider,
   webLightTheme,
 } from '@fluentui/react-components';
-import { AllPhotosData, Photo } from './AllPhotosData';
-import { off } from 'process';
-
-interface Folder extends Item{
-  childCount: number | undefined;
-}
-
-interface Item {
-    id: string;
-    name: string;
-    folder: any;
-}
-
-function isFolderItem(item: Item): item is Folder {
-    return item.folder;
-  }
-
-type FolderContents = {photos: Photo[], folders: Folder[]};
+import { AllPhotosData } from './AllPhotosData';
+import {
+  Folder,
+  FolderContents,
+  OneDriveItem,
+  Photo,
+  isFolderItem,
+} from 'OneDriveItem';
 
 const GPSInfoFromAllPhotos = () => {
   const { instance, accounts } = useMsal();
   const [allPhotos, setAllPhotos] = useState<Photo[]>([]);
 
-
-
-  function splitPhotosAndFolders(items: Item[]): FolderContents {
+  function splitPhotosAndFolders(items: OneDriveItem[]): FolderContents {
     const photos: Photo[] = [];
     const folders: Folder[] = [];
     for (const item of items) {
-        if (isFolderItem(item)) {
-            folders.push(item);
-        } else {
-            photos.push(item);
-        }
-     }
-        return {photos, folders};
+      if (isFolderItem(item)) {
+        folders.push(item);
+      } else {
+        photos.push(item);
+      }
+    }
+    return { photos, folders };
   }
 
-  async function getFolderItemsFromId(folderId: string): Promise<FolderContents> {
-    const token = await instance 
+  async function getFolderItemsFromId(
+    folderId: string
+  ): Promise<FolderContents> {
+    const token = await instance
       // Silently acquires an access token which is then attached to a request for MS Graph data
       .acquireTokenSilent({
         ...loginRequest,
         account: accounts[0],
       });
-    const folderItems = await graphGetFolderItemsFromId(token.accessToken, folderId);
+    const folderItems = await graphGetFolderItemsFromId(
+      token.accessToken,
+      folderId
+    );
 
     return splitPhotosAndFolders(folderItems.value);
-}
+  }
 
   async function GetGPSInfoFromAllPhotos() {
     const folderIdsQueue: string[] = [];
 
     // get root (Photos folder) items
-    const token = await instance 
+    const token = await instance
       // Silently acquires an access token which is then attached to a request for MS Graph data
       .acquireTokenSilent({
         ...loginRequest,
         account: accounts[0],
       });
     const result2 = await getPhotosFolderItems(token.accessToken);
-    const {photos: photosInRoot, folders: foldersInRoot} = splitPhotosAndFolders(result2.value);
-    folderIdsQueue.push(...foldersInRoot.map(folder => folder.id));
+    const { photos: photosInRoot, folders: foldersInRoot } =
+      splitPhotosAndFolders(result2.value);
+    folderIdsQueue.push(...foldersInRoot.map((folder) => folder.id));
 
     // get items in each sub folder recursively
     while (folderIdsQueue.length > 0) {
-        const {photos, folders} = await getFolderItemsFromId(folderIdsQueue.shift()!);
-        folderIdsQueue.push(...folders.map(folder => folder.id));
-        photosInRoot.push(...photos);
-}
+      const { photos, folders } = await getFolderItemsFromId(
+        folderIdsQueue.shift()!
+      );
+      folderIdsQueue.push(...folders.map((folder) => folder.id));
+      photosInRoot.push(...photos);
+    }
 
     setAllPhotos(photosInRoot);
   }
@@ -96,7 +92,9 @@ const GPSInfoFromAllPhotos = () => {
       {allPhotos.length ? (
         <AllPhotosData allPhotos={allPhotos} />
       ) : (
-        <Button onClick={GetGPSInfoFromAllPhotos}>Get GPS info from all photos</Button>
+        <Button onClick={GetGPSInfoFromAllPhotos}>
+          Get GPS info from all photos
+        </Button>
       )}
     </>
   );

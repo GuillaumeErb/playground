@@ -18,23 +18,29 @@ export async function getPhotosFolderItems(accessToken: string) {
     .catch((error) => console.log(error));
 }
 
-export async function graphGetFolderItemsFromId(accessToken: string, folderId: string) {
-    const headers = new Headers();
-    const bearer = `Bearer ${accessToken}`;
-  
-    headers.append('Authorization', bearer);
-  
-    const options = {
-      method: 'GET',
-      headers: headers,
-    };
+export async function graphGetFolderItemsFromId(
+  accessToken: string,
+  folderId: string
+) {
+  const headers = new Headers();
+  const bearer = `Bearer ${accessToken}`;
 
-    const endpoint = graphConfig.graphOneDriveFolderIdChildrenEndpoint.replace('{folderId}', folderId);
-    console.warn('graphGetFolderItemsFromId', endpoint);
+  headers.append('Authorization', bearer);
 
-    return fetch(endpoint, options)
-      .then((response) => {
-        return response.json();
-      })
-      .catch((error) => console.log(error));
-  }
+  const options = {
+    method: 'GET',
+    headers: headers,
+  };
+
+  const endpoint = graphConfig.graphOneDriveFolderIdChildrenEndpoint.replace(
+    '{folderId}',
+    folderId
+  );
+  console.warn('graphGetFolderItemsFromId', endpoint);
+
+  return fetch(endpoint, options)
+    .then((response) => {
+      return response.json();
+    })
+    .catch((error) => console.log(error));
+}

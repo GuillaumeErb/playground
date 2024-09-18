@@ -1,21 +1,12 @@
+import { Photo } from 'OneDriveItem';
 import React from 'react';
 /**
  * Renders information about the user obtained from MS Graph
  * @param props
  */
 
-export interface Photo {
-  id: string;
-  name: string;
-  location?: {
-    altitude?: number;
-    latitude?: number;
-    longitude?: number;
-  };
-}
-
 export interface AllPhotosProps {
-  allPhotos: Photo[]
+  allPhotos: Photo[];
 }
 
 export const AllPhotosData = (props: AllPhotosProps) => {
