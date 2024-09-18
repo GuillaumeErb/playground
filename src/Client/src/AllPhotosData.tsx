@@ -4,7 +4,7 @@ import React from 'react';
  * @param props
  */
 
-export interface PhotoInfo {
+export interface Photo {
   id: string;
   name: string;
   location?: {
@@ -14,18 +14,15 @@ export interface PhotoInfo {
   };
 }
 
-export interface ProfileDataProps {
-  graphData: {
-    value: PhotoInfo[] | undefined;
-    folder: any | undefined;
-  };
+export interface AllPhotosProps {
+  allPhotos: Photo[]
 }
 
-export const ProfileData = (props: ProfileDataProps) => {
+export const AllPhotosData = (props: AllPhotosProps) => {
   return (
     <div id="profile-div">
       <h5>Photos</h5>
-      {props.graphData.value?.map((photo: PhotoInfo, index: number) => {
+      {props.allPhotos.map((photo: Photo, index: number) => {
         return (
           <div key={index}>
             <p>
