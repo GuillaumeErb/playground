@@ -1,26 +1,25 @@
-import React from "react";
+import React from 'react';
 /**
- * Renders information about the user obtained from MS Graph 
+ * Renders information about the user obtained from MS Graph
  * @param props
  */
 
 export interface PhotoInfo {
   id: string;
   name: string;
-  location?: 
-    {            
-      altitude?: number,
-      latitude?: number,
-      longitude?: number
-    },
+  location?: {
+    altitude?: number;
+    latitude?: number;
+    longitude?: number;
+  };
 }
 
 export interface ProfileDataProps {
-    graphData: {
-        value: PhotoInfo[] | undefined;
-        folder: any | undefined;
-    };
-};
+  graphData: {
+    value: PhotoInfo[] | undefined;
+    folder: any | undefined;
+  };
+}
 
 export const ProfileData = (props: ProfileDataProps) => {
   return (
@@ -36,13 +35,16 @@ export const ProfileData = (props: ProfileDataProps) => {
               <strong>Name: </strong> {photo.name}
             </p>
             <p>
-              <strong>Altitude: </strong> {photo.location?.altitude?? "unknown"}
+              <strong>Altitude: </strong>{' '}
+              {photo.location?.altitude ?? 'unknown'}
             </p>
             <p>
-              <strong>Latitude: </strong> {photo.location?.latitude?? "unknown"}
+              <strong>Latitude: </strong>{' '}
+              {photo.location?.latitude ?? 'unknown'}
             </p>
             <p>
-              <strong>Longitude: </strong> {photo.location?.longitude?? "unknown"}
+              <strong>Longitude: </strong>{' '}
+              {photo.location?.longitude ?? 'unknown'}
             </p>
           </div>
         );

@@ -1,17 +1,17 @@
-import React from "react";
+import React from 'react';
 /**
- * Renders information about the user obtained from MS Graph 
+ * Renders information about the user obtained from MS Graph
  * @param props
  */
 
 export interface OneDriveDataProps {
-    graphData: {
-        id: string;
-        driveType: string;
-        code: string;
-        message: string;
-    };
-};
+  graphData: {
+    id: string;
+    driveType: string;
+    code: string;
+    message: string;
+  };
+}
 
 export const OneDriveData = (props: OneDriveDataProps) => {
   return (
