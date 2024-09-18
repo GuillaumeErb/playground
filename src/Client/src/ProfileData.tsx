@@ -4,30 +4,49 @@ import React from "react";
  * @param props
  */
 
+export interface PhotoInfo {
+  id: string;
+  name: string;
+  location?: 
+    {            
+      altitude?: number,
+      latitude?: number,
+      longitude?: number
+    },
+}
+
 export interface ProfileDataProps {
     graphData: {
-        givenName: string;
-        surname: string;
-        userPrincipalName: string;
-        id: string;
+        value: PhotoInfo[] | undefined;
+        folder: any | undefined;
     };
 };
 
 export const ProfileData = (props: ProfileDataProps) => {
   return (
     <div id="profile-div">
-      <p>
-        <strong>First Name: </strong> {props.graphData.givenName}
-      </p>
-      <p>
-        <strong>Last Name: </strong> {props.graphData.surname}
-      </p>
-      <p>
-        <strong>Email: </strong> {props.graphData.userPrincipalName}
-      </p>
-      <p>
-        <strong>Id: </strong> {props.graphData.id}
-      </p>
+      <h5>Photos</h5>
+      {props.graphData.value?.map((photo: PhotoInfo, index: number) => {
+        return (
+          <div key={index}>
+            <p>
+              <strong>Id: </strong> {photo.id}
+            </p>
+            <p>
+              <strong>Name: </strong> {photo.name}
+            </p>
+            <p>
+              <strong>Altitude: </strong> {photo.location?.altitude?? "unknown"}
+            </p>
+            <p>
+              <strong>Latitude: </strong> {photo.location?.latitude?? "unknown"}
+            </p>
+            <p>
+              <strong>Longitude: </strong> {photo.location?.longitude?? "unknown"}
+            </p>
+          </div>
+        );
+      })}
     </div>
   );
 };

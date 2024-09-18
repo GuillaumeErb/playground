@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 
 import { loginRequest } from './authConfig';
 import { ProfileData } from './ProfileData';
+import { OneDriveData } from './OneDriveData';
 
 import { AuthenticatedTemplate, UnauthenticatedTemplate, useMsal } from '@azure/msal-react';
 import './App.css';
@@ -10,6 +11,22 @@ import { AzureMap } from './AzureMap';
 import { PageLayout } from './PageLayout';
 import { callMsGraph } from './graph';
 import { Button, FluentProvider, webLightTheme } from '@fluentui/react-components';
+
+interface Photo {
+    id: string;
+    name: string;
+    location?: 
+        {            
+        altitude?: number,
+        latitude?: number,
+        longitude?: number
+        },
+}
+
+interface Folder {
+    id: string;
+    name: string;
+}
 
 
 const ProfileContent = () => {
@@ -24,7 +41,7 @@ const ProfileContent = () => {
               account: accounts[0],
           })
           .then((response) => {
-              callMsGraph(response.accessToken).then((response) => setGraphData(response));
+              callMsGraph(response.accessToken, 1).then((response) => setGraphData(response));
           });
   }
 
@@ -42,11 +59,42 @@ const ProfileContent = () => {
   );
 };
 
+const OneDriveContent = () => {
+    const { instance, accounts } = useMsal();
+    const [graphData, setGraphData] = useState(null);
+  
+    function RequestOneDriveData() {
+        // Silently acquires an access token which is then attached to a request for MS Graph data
+        instance
+            .acquireTokenSilent({
+                ...loginRequest,
+                account: accounts[0],
+            })
+            .then((response) => {
+                callMsGraph(response.accessToken, 2).then((response) => setGraphData(response));
+            });
+    }
+  
+    return (
+        <>
+            <h5 className="oneDriveContent">Welcome {accounts[0].name}</h5>
+            {graphData ? (
+                <OneDriveData graphData={graphData} />
+            ) : (
+                <Button onClick={RequestOneDriveData}>
+                    Request OneDrive
+                </Button>
+            )}
+        </>
+    );
+  };
+
 const MainContent = () => {
   return (
       <div className="App">
           <AuthenticatedTemplate>
               <ProfileContent />
+              <OneDriveContent />
               <WeatherForecast />
               <AzureMap />
           </AuthenticatedTemplate>
