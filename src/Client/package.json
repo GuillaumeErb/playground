@@ -6,6 +6,8 @@
     "@azure/msal-browser": "^3.23.0",
     "@azure/msal-react": "^2.0.22",
     "@fluentui/react-components": "^9.54.15",
+    "@fluentui/react-icons": "^2.0.258",
+    "@fluentui/react-nav-preview": "^0.7.6",
     "azure-maps-control": "^3.3.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
