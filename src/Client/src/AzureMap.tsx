@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import * as atlas from 'azure-maps-control';
 import { AuthenticationType } from 'azure-maps-control';
 import { useMsal } from '@azure/msal-react';
-import { AuthenticationResult } from '@azure/msal-browser';
+import { getAccessToken } from './authConfig';
 
 export const AzureMap = () => {
   const mapRef = useRef(null);
@@ -23,21 +23,15 @@ export const AzureMap = () => {
       view: 'Auto',
       authOptions: {
         authType: AuthenticationType.anonymous,
-        getToken: (resolve, reject, _) => {
-          return instance
-            .acquireTokenSilent({
-              scopes: ['https://atlas.microsoft.com/user_impersonation'],
-              account: accounts[0],
-            })
-            .then((response: AuthenticationResult) => {
-              console.log(JSON.stringify(response));
-              resolve(response.accessToken);
-            })
-            .catch((e: Error) => {
-              console.error(e);
-              reject(e);
-            });
-        },
+        getToken: (resolve, reject, _) =>
+          getAccessToken(
+            instance,
+            ['https://atlas.microsoft.com/user_impersonation'],
+            accounts[0],
+            'https://login.microsoftonline.com/39978ec3-287e-4574-8c31-93c1151c1bb6'
+          )
+            .then((accessToken: string) => resolve(accessToken))
+            .catch((e) => reject(e)),
       },
     });
 

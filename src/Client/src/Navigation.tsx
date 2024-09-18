@@ -50,22 +50,18 @@ export const Navigation = () => {
 
   const [isOpen, setIsOpen] = React.useState(true);
 
-  const renderHamburgerWithToolTip = () => {
-    return (
-      <Tooltip content="Navigation" relationship="label">
-        <Hamburger onClick={() => setIsOpen(!isOpen)} />
-      </Tooltip>
-    );
+  const renderHamburger = () => {
+    return <Hamburger onClick={() => setIsOpen(!isOpen)} />;
   };
 
   if (!isOpen) {
-    return renderHamburgerWithToolTip();
+    return renderHamburger();
   }
 
   return (
     <div className={styles.root}>
       <NavDrawer defaultSelectedValue="1" open={isOpen}>
-        <NavDrawerHeader>{renderHamburgerWithToolTip()}</NavDrawerHeader>
+        <NavDrawerHeader>{renderHamburger()}</NavDrawerHeader>
 
         <NavDrawerBody>
           <NavItem icon={<MountainLocationBottom />} value="1">

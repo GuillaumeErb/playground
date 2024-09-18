@@ -1,16 +1,20 @@
-import { Configuration, LogLevel } from '@azure/msal-browser';
+import {
+  AccountInfo,
+  Configuration,
+  InteractionRequiredAuthError,
+  IPublicClientApplication,
+  LogLevel,
+} from '@azure/msal-browser';
 
-/**
- * Configuration object to be passed to MSAL instance on creation.
- * For a full list of MSAL.js configuration parameters, visit:
- * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/configuration.md
- */
+const CLIENT_ID = '58ed5d5d-5ab0-4c43-9f3c-824247c1892c';
+const DEFAULT_AUTHORITY = 'https://login.microsoftonline.com/common';
+const REDIRECT_URI = 'http://localhost:5165';
 
 export const msalConfig: Configuration = {
   auth: {
-    clientId: '58ed5d5d-5ab0-4c43-9f3c-824247c1892c',
-    authority: 'https://login.microsoftonline.com/common',
-    redirectUri: 'http://localhost:3000',
+    clientId: CLIENT_ID,
+    authority: DEFAULT_AUTHORITY,
+    redirectUri: REDIRECT_URI,
   },
   cache: {
     cacheLocation: 'sessionStorage', // This configures where your cache will be stored
@@ -62,3 +66,36 @@ export const graphConfig = {
     'https://graph.microsoft.com/v1.0/me/drive/root:/Photos:/children',
   graphOneDriveFolderIdChildrenEndpoint: 'https://graph.microsoft.com/v1.0/me/drive/items/{folderId}/children'
 };
+
+export const acquireToken = async (
+  msalInstance: IPublicClientApplication,
+  scopes: string[],
+  account: AccountInfo,
+  authority: string
+) => {
+  try {
+    return await msalInstance.acquireTokenSilent({
+      scopes,
+      account,
+      authority,
+    });
+  } catch (e: unknown) {
+    if (e instanceof InteractionRequiredAuthError) {
+      // fallback to interaction when silent call fails
+      return await msalInstance.acquireTokenPopup({
+        scopes,
+        account,
+        authority,
+      });
+    }
+    console.error(e);
+    throw e;
+  }
+};
+
+export const getAccessToken = async (
+  msalInstance: IPublicClientApplication,
+  scopes: string[],
+  account: AccountInfo,
+  authority: string = DEFAULT_AUTHORITY
+) => (await acquireToken(msalInstance, scopes, account, authority)).accessToken;
