@@ -9,8 +9,8 @@ import { Configuration, LogLevel } from "@azure/msal-browser";
 export const msalConfig: Configuration = {
     auth: {
         clientId: "58ed5d5d-5ab0-4c43-9f3c-824247c1892c",
-        authority: "https://login.microsoftonline.com/39978ec3-287e-4574-8c31-93c1151c1bb6",
-        redirectUri: "http://localhost:5165",
+        authority: "https://login.microsoftonline.com/common",
+        redirectUri: "http://localhost:3000",
     },
     cache: {
         cacheLocation: "sessionStorage", // This configures where your cache will be stored
@@ -50,7 +50,7 @@ export const msalConfig: Configuration = {
  * https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-permissions-and-consent#openid-connect-scopes
  */
 export const loginRequest = {
-    scopes: ["User.Read"]
+    scopes: ["User.Read", "Files.Read"]
 };
 
 /**
@@ -58,5 +58,6 @@ export const loginRequest = {
  * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/resources-and-scopes.md
  */
 export const graphConfig = {
-    graphMeEndpoint: "https://graph.microsoft.com/v1.0/me",
+    grapheOneDriveTestEndpoint:  "https://graph.microsoft.com/v1.0/me/drive/root:/Photos:/children",
+    graphOneDriveEndpoint: "https://graph.microsoft.com/v1.0/me/drive/root/children"
 };
