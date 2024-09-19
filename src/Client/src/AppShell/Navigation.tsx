@@ -15,8 +15,6 @@ import {
   ImageGlobe20Regular,
   MountainLocationBottom20Filled,
   MountainLocationBottom20Regular,
-  Person20Filled,
-  Person20Regular,
   WeatherPartlyCloudyDay20Filled,
   WeatherPartlyCloudyDay20Regular,
 } from '@fluentui/react-icons';
@@ -24,16 +22,16 @@ import { useNavigate } from 'react-router-dom';
 
 const useStyles = makeStyles({
   root: {
-    display: 'flex', // ensures side-by-side layout
-    height: '100vh', // full height
-    overflow: 'hidden', // prevents overflow
+    display: 'flex',
+    height: '100vh',
+    overflow: 'hidden',
   },
   drawer: {
-    width: '250px', // fixed width for the drawer
-    flexShrink: 0, // prevents the drawer from shrinking
+    width: '250px',
+    flexShrink: 0,
   },
   content: {
-    flex: '1', // allows the content to take up remaining space
+    flex: '1',
     padding: '16px',
     display: 'grid',
     justifyContent: 'flex-start',
@@ -53,7 +51,6 @@ const MountainLocationBottom = bundleIcon(
   MountainLocationBottom20Filled
 );
 
-const Person = bundleIcon(Person20Regular, Person20Filled);
 const WeatherPartlyCloudyDay = bundleIcon(
   WeatherPartlyCloudyDay20Regular,
   WeatherPartlyCloudyDay20Filled

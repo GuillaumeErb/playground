@@ -1,6 +1,6 @@
 import React from 'react';
 import { useMsal } from '@azure/msal-react';
-import { loginRequest } from './Authentication';
+import { loginRequest } from '../Authentication';
 import { Button } from '@fluentui/react-components';
 
 export const SignInButton = () => {

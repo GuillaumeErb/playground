@@ -2,10 +2,10 @@ import React from 'react';
 
 import WeatherForecast from './WeatherForecast';
 import { AzureMap } from './AzureMap';
-import { PageLayout } from './PageLayout';
 import { FluentProvider, webLightTheme } from '@fluentui/react-components';
 import { Link, Route, Routes } from 'react-router-dom';
 import { OneDrivePhotosMetadata } from './OneDrivePhotosMetadata';
+import { PageLayout } from './AppShell/PageLayout';
 
 function Home() {
   return (

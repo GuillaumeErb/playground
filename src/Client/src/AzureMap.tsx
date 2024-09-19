@@ -1,13 +1,12 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import * as atlas from 'azure-maps-control';
-import { AuthenticationType } from 'azure-maps-control';
 import { useMsal } from '@azure/msal-react';
-import { getAccessToken, TENANT_ID } from './Authentication';
+import { getAccessToken } from './Authentication';
 import { getGPSFromAllPhotos } from './OneDrivePhotosMetadata';
-import { Photo } from './OneDriveItem';
 import { AccountInfo, IPublicClientApplication } from '@azure/msal-browser';
+import { OneDriveItem } from './OneDriveItem';
 
-function getDatasourceFromPhotos(photos: Photo[]) {
+function getDatasourceFromPhotos(photos: OneDriveItem[]) {
   // filter out photos without geotag
   photos = photos.filter((photo) => photo.location !== undefined);
 
@@ -43,7 +42,7 @@ export const AzureMap = () => {
   const mapRef = useRef(null);
   const { instance, accounts } = useMsal();
 
-  const [allPhotos, setAllPhotos] = useState<Photo[] | null>(null);
+  const [allPhotos, setAllPhotos] = useState<OneDriveItem[] | null>(null);
 
   useEffect(() => {
     if (!instance) {
@@ -94,16 +93,33 @@ export const AzureMap = () => {
       center: [2.2656859, 48.8338625],
       view: 'Auto',
       authOptions: {
-        authType: AuthenticationType.subscriptionKey,
+        authType: atlas.AuthenticationType.subscriptionKey,
         subscriptionKey: process.env.REACT_APP_AZURE_MAPS_KEY,
+        /*authType: AuthenticationType.anonymous,
+        clientId: CLIENT_ID,
+        getToken: (resolve, reject, _) =>
+          getAccessToken(
+            instance,
+            ['https://atlas.microsoft.com/user_impersonation'],
+            accounts[0],
+            'https://login.microsoftonline.com/' + TENANT_ID
+          )
+            .then((accessToken: string) => resolve(accessToken))
+            .catch((e) => reject(e)),*/
       },
+      showFeedbackLink: false,
+      showLogo: false,
     };
-
     const map = new atlas.Map(mapRef.current, mapOptions);
     addGPSHeatMapToMap(map);
 
     return () => map.dispose();
   }, [mapRef.current, instance === null, allPhotos === null]);
 
-  return <div style={{ height: '500px', width: '500px' }} ref={mapRef} />;
+  return (
+    <div
+      style={{ position: 'relative', height: '700px', width: '100%' }}
+      ref={mapRef}
+    />
+  );
 };

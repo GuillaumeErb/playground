@@ -1,40 +1,35 @@
+//https://learn.microsoft.com/en-us/onedrive/developer/rest-api/resources/driveitem?view=odsp-graph-online
 export interface OneDriveItem {
   id: string;
   name: string;
-  folder: any;
+  folder?: OneDriveFolder;
+  location?: OneDriveGeoCoordinates;
 }
 
-export interface Folder extends OneDriveItem {
-  childCount: number | undefined;
+export interface OneDriveFolder {
+  childCount: number;
 }
 
-export interface Photo {
-  id: string;
-  name: string;
-  location?: {
-    altitude?: number;
-    latitude?: number;
-    longitude?: number;
-  };
+export interface OneDriveGeoCoordinates {
+  altitude: number;
+  latitude: number;
+  longitude: number;
 }
 
-export function isFolderItem(item: OneDriveItem): item is Folder {
-  return item.folder;
+export interface FolderContent {
+  folders: OneDriveItem[];
+  otherItems: OneDriveItem[];
 }
 
-export type FolderContents = { photos: Photo[]; folders: Folder[] };
-
-export const splitPhotosAndFolders = (
-  items: OneDriveItem[]
-): FolderContents => {
-  const photos: Photo[] = [];
-  const folders: Folder[] = [];
+export const splitPhotosAndFolders = (items: OneDriveItem[]): FolderContent => {
+  const otherItems: OneDriveItem[] = [];
+  const folders: OneDriveItem[] = [];
   for (const item of items) {
-    if (isFolderItem(item)) {
+    if (item.folder !== undefined) {
       folders.push(item);
     } else {
-      photos.push(item);
+      otherItems.push(item);
     }
   }
-  return { photos, folders };
+  return { folders, otherItems };
 };
