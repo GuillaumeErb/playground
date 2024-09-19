@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import * as atlas from 'azure-maps-control';
 import { AuthenticationType } from 'azure-maps-control';
 import { useMsal } from '@azure/msal-react';
-import { getAccessToken } from './authConfig';
+import { getAccessToken, TENANT_ID } from './authConfig';
 
 export const AzureMap = () => {
   const mapRef = useRef(null);
@@ -28,7 +28,7 @@ export const AzureMap = () => {
             instance,
             ['https://atlas.microsoft.com/user_impersonation'],
             accounts[0],
-            'https://login.microsoftonline.com/39978ec3-287e-4574-8c31-93c1151c1bb6'
+            'https://login.microsoftonline.com/' + TENANT_ID
           )
             .then((accessToken: string) => resolve(accessToken))
             .catch((e) => reject(e)),
@@ -38,5 +38,5 @@ export const AzureMap = () => {
     return () => map.dispose();
   }, [mapRef.current, instance === null]);
 
-  return <div style={{ height: '500px' }} ref={mapRef} />;
+  return <div style={{ height: '90%', width: '90%' }} ref={mapRef} />;
 };

@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 
 import { loginRequest } from './authConfig';
+import { ProfileData } from './ProfileData';
+import { OneDriveData } from './OneDriveData';
+
+import { useMsal } from '@azure/msal-react';
 import {
   AuthenticatedTemplate,
   UnauthenticatedTemplate,
@@ -16,6 +20,9 @@ import {
   FluentProvider,
   webLightTheme,
 } from '@fluentui/react-components';
+import { Link, Route, Routes } from 'react-router-dom';
+
+const ProfileContent = () => {
 import { AllPhotosData } from './AllPhotosData';
 import {
   Folder,
@@ -100,30 +107,38 @@ const GPSInfoFromAllPhotos = () => {
   );
 };
 
-const MainContent = () => {
+function Home() {
   return (
-    <div className="App">
-      <AuthenticatedTemplate>
-        <GPSInfoFromAllPhotos />
-        <WeatherForecast />
-        <AzureMap />
-      </AuthenticatedTemplate>
-
-      <UnauthenticatedTemplate>
-        <h5 className="card-title">
-          Please sign-in to see your profile information.
-        </h5>
-      </UnauthenticatedTemplate>
+    <div>
+      <h2>Home</h2>
     </div>
   );
-};
+}
+
+function NoMatch() {
+  return (
+    <div>
+      <h2>Nothing to see here!</h2>
+      <p>
+        <Link to="/">Go to the home page</Link>
+      </p>
+    </div>
+  );
+}
 
 export default function App() {
   return (
     <FluentProvider theme={webLightTheme}>
-      <PageLayout>
-        <MainContent />
-      </PageLayout>
+      <Routes>
+        <Route path="/" element={<PageLayout />}>
+          <Route index element={<Home />} />
+          <Route path="heatmap" element={<AzureMap />} />
+          <Route path="profile-content" element={<ProfileContent />} />
+          <Route path="one-drive-content" element={<OneDriveContent />} />
+          <Route path="weather-forecast" element={<WeatherForecast />} />
+          <Route path="*" element={<NoMatch />} />
+        </Route>
+      </Routes>
     </FluentProvider>
   );
 }

@@ -9,6 +9,7 @@ import {
 const CLIENT_ID = '58ed5d5d-5ab0-4c43-9f3c-824247c1892c';
 const DEFAULT_AUTHORITY = 'https://login.microsoftonline.com/common';
 const REDIRECT_URI = 'http://localhost:5165';
+export const TENANT_ID = '39978ec3-287e-4574-8c31-93c1151c1bb6';
 
 export const msalConfig: Configuration = {
   auth: {
