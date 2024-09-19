@@ -8,46 +8,53 @@ import {
   graphGetFolderItemsFromId,
 } from './OneDriveApis';
 
+export async function getFolderItemsFromId(
+  accessToken: string,
+  folderId: string
+): Promise<FolderContents> {
+  const folderItems = await graphGetFolderItemsFromId(accessToken, folderId);
+  return splitPhotosAndFolders(folderItems.value);
+}
+
+export async function getGPSFromAllPhotos(
+  accessToken: string,
+  limit: number = 1000
+) {
+  const folderIdsQueue: string[] = [];
+  const allPhotos: Photo[] = [];
+
+  const rootItems = await getPhotosFolderItems(accessToken);
+  const { photos: rootPhotos, folders: rootFolders } = splitPhotosAndFolders(
+    rootItems.value
+  );
+  folderIdsQueue.push(...rootFolders.map((folder) => folder.id));
+  allPhotos.push(...rootPhotos);
+
+  // get items in each sub folder recursively
+  while (folderIdsQueue.length > 0 && folderIdsQueue.length < limit) {
+    const { photos, folders } = await getFolderItemsFromId(
+      accessToken,
+      folderIdsQueue.shift()!
+    );
+    folderIdsQueue.push(...folders.map((folder) => folder.id));
+    allPhotos.push(...photos);
+  }
+
+  return allPhotos;
+}
+
 export const OneDrivePhotosMetadata = () => {
   const { instance, accounts } = useMsal();
   const [allPhotos, setAllPhotos] = useState<Photo[]>([]);
 
-  async function getFolderItemsFromId(
-    folderId: string
-  ): Promise<FolderContents> {
+  async function ButtonGetGPSInfoFromAllPhotos(limit: number = 1000) {
     const accessToken = await getAccessToken(
       instance,
       ['Files.Read'],
       accounts[0]
     );
-    const folderItems = await graphGetFolderItemsFromId(accessToken, folderId);
-
-    return splitPhotosAndFolders(folderItems.value);
-  }
-
-  async function GetGPSInfoFromAllPhotos(limit: number = 1000) {
-    const folderIdsQueue: string[] = [];
-
-    const accessToken = await getAccessToken(
-      instance,
-      ['Files.Read'],
-      accounts[0]
-    );
-    const result2 = await getPhotosFolderItems(accessToken);
-    const { photos: photosInRoot, folders: foldersInRoot } =
-      splitPhotosAndFolders(result2.value);
-    folderIdsQueue.push(...foldersInRoot.map((folder) => folder.id));
-
-    // get items in each sub folder recursively
-    while (folderIdsQueue.length > 0 && folderIdsQueue.length < limit) {
-      const { photos, folders } = await getFolderItemsFromId(
-        folderIdsQueue.shift()!
-      );
-      folderIdsQueue.push(...folders.map((folder) => folder.id));
-      photosInRoot.push(...photos);
-    }
-
-    setAllPhotos(photosInRoot);
+    const allPhotosGPS = await getGPSFromAllPhotos(accessToken, limit);
+    setAllPhotos(allPhotosGPS);
   }
 
   return (
@@ -56,7 +63,7 @@ export const OneDrivePhotosMetadata = () => {
       {allPhotos.length ? (
         <OneDrivePhotosMetadataList allPhotos={allPhotos} />
       ) : (
-        <Button onClick={() => GetGPSInfoFromAllPhotos()}>
+        <Button onClick={() => ButtonGetGPSInfoFromAllPhotos()}>
           Get GPS info from all photos
         </Button>
       )}
