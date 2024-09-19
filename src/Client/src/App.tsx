@@ -1,9 +1,6 @@
 import React, { useState } from 'react';
 
 import { loginRequest } from './authConfig';
-import { ProfileData } from './ProfileData';
-import { OneDriveData } from './OneDriveData';
-
 import {
   AuthenticatedTemplate,
   UnauthenticatedTemplate,
@@ -13,83 +10,91 @@ import './App.css';
 import WeatherForecast from './WeatherForecast';
 import { AzureMap } from './AzureMap';
 import { PageLayout } from './PageLayout';
-import { callMsGraph } from './graph';
+import { getPhotosFolderItems, graphGetFolderItemsFromId } from './graph';
 import {
   Button,
   FluentProvider,
   webLightTheme,
 } from '@fluentui/react-components';
+import { AllPhotosData } from './AllPhotosData';
+import {
+  Folder,
+  FolderContents,
+  OneDriveItem,
+  Photo,
+  isFolderItem,
+} from 'OneDriveItem';
 
-interface Photo {
-  id: string;
-  name: string;
-  location?: {
-    altitude?: number;
-    latitude?: number;
-    longitude?: number;
-  };
-}
-
-interface Folder {
-  id: string;
-  name: string;
-}
-
-const ProfileContent = () => {
+const GPSInfoFromAllPhotos = () => {
   const { instance, accounts } = useMsal();
-  const [graphData, setGraphData] = useState(null);
+  const [allPhotos, setAllPhotos] = useState<Photo[]>([]);
 
-  function RequestProfileData() {
-    // Silently acquires an access token which is then attached to a request for MS Graph data
-    instance
+  function splitPhotosAndFolders(items: OneDriveItem[]): FolderContents {
+    const photos: Photo[] = [];
+    const folders: Folder[] = [];
+    for (const item of items) {
+      if (isFolderItem(item)) {
+        folders.push(item);
+      } else {
+        photos.push(item);
+      }
+    }
+    return { photos, folders };
+  }
+
+  async function getFolderItemsFromId(
+    folderId: string
+  ): Promise<FolderContents> {
+    const token = await instance
+      // Silently acquires an access token which is then attached to a request for MS Graph data
       .acquireTokenSilent({
         ...loginRequest,
         account: accounts[0],
-      })
-      .then((response) => {
-        callMsGraph(response.accessToken, 1).then((response) =>
-          setGraphData(response)
-        );
       });
+    const folderItems = await graphGetFolderItemsFromId(
+      token.accessToken,
+      folderId
+    );
+
+    return splitPhotosAndFolders(folderItems.value);
+  }
+
+  async function GetGPSInfoFromAllPhotos() {
+    const folderIdsQueue: string[] = [];
+
+    // get root (Photos folder) items
+    const token = await instance
+      // Silently acquires an access token which is then attached to a request for MS Graph data
+      .acquireTokenSilent({
+        ...loginRequest,
+        account: accounts[0],
+      });
+    const result2 = await getPhotosFolderItems(token.accessToken);
+    const { photos: photosInRoot, folders: foldersInRoot } =
+      splitPhotosAndFolders(result2.value);
+    folderIdsQueue.push(...foldersInRoot.map((folder) => folder.id));
+
+    // get items in each sub folder recursively
+    while (folderIdsQueue.length > 0) {
+      const { photos, folders } = await getFolderItemsFromId(
+        folderIdsQueue.shift()!
+      );
+      folderIdsQueue.push(...folders.map((folder) => folder.id));
+      photosInRoot.push(...photos);
+    }
+
+    setAllPhotos(photosInRoot);
   }
 
   return (
     <>
       <h5 className="profileContent">Welcome {accounts[0].name}</h5>
-      {graphData ? (
-        <ProfileData graphData={graphData} />
+      {allPhotos.length ? (
+        <AllPhotosData allPhotos={allPhotos} />
       ) : (
-        <Button onClick={RequestProfileData}>Request Profile</Button>
-      )}
-    </>
-  );
-};
-
-const OneDriveContent = () => {
-  const { instance, accounts } = useMsal();
-  const [graphData, setGraphData] = useState(null);
-
-  function RequestOneDriveData() {
-    // Silently acquires an access token which is then attached to a request for MS Graph data
-    instance
-      .acquireTokenSilent({
-        ...loginRequest,
-        account: accounts[0],
-      })
-      .then((response) => {
-        callMsGraph(response.accessToken, 2).then((response) =>
-          setGraphData(response)
-        );
-      });
-  }
-
-  return (
-    <>
-      <h5 className="oneDriveContent">Welcome {accounts[0].name}</h5>
-      {graphData ? (
-        <OneDriveData graphData={graphData} />
-      ) : (
-        <Button onClick={RequestOneDriveData}>Request OneDrive</Button>
+        <Button onClick={GetGPSInfoFromAllPhotos}>
+          Get GPS info from all photos
+        </Button>
       )}
     </>
   );
@@ -99,8 +104,7 @@ const MainContent = () => {
   return (
     <div className="App">
       <AuthenticatedTemplate>
-        <ProfileContent />
-        <OneDriveContent />
+        <GPSInfoFromAllPhotos />
         <WeatherForecast />
         <AzureMap />
       </AuthenticatedTemplate>

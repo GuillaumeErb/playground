@@ -58,8 +58,7 @@ export const loginRequest = {
  * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/resources-and-scopes.md
  */
 export const graphConfig = {
-  grapheOneDriveTestEndpoint:
+  graphOneDrivePhotosFolderChildrenEndpoint:
     'https://graph.microsoft.com/v1.0/me/drive/root:/Photos:/children',
-  graphOneDriveEndpoint:
-    'https://graph.microsoft.com/v1.0/me/drive/root/children',
+  graphOneDriveFolderIdChildrenEndpoint: 'https://graph.microsoft.com/v1.0/me/drive/items/{folderId}/children'
 };
