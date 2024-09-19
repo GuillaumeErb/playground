@@ -1,5 +1,9 @@
 import { Button } from '@fluentui/react-components';
-import { FolderContents, Photo, splitPhotosAndFolders } from './OneDriveItem';
+import {
+  FolderContent,
+  OneDriveItem,
+  splitPhotosAndFolders,
+} from './OneDriveItem';
 import React, { useState } from 'react';
 import { getAccessToken } from './Authentication';
 import { useMsal } from '@azure/msal-react';
@@ -11,7 +15,7 @@ import {
 export async function getFolderItemsFromId(
   accessToken: string,
   folderId: string
-): Promise<FolderContents> {
+): Promise<FolderContent> {
   const folderItems = await graphGetFolderItemsFromId(accessToken, folderId);
   return splitPhotosAndFolders(folderItems.value);
 }
@@ -21,23 +25,22 @@ export async function getGPSFromAllPhotos(
   limit: number = 1000
 ) {
   const folderIdsQueue: string[] = [];
-  const allPhotos: Photo[] = [];
+  const allPhotos: OneDriveItem[] = [];
 
   const rootItems = await getPhotosFolderItems(accessToken);
-  const { photos: rootPhotos, folders: rootFolders } = splitPhotosAndFolders(
-    rootItems.value
-  );
+  const { otherItems: rootPhotos, folders: rootFolders } =
+    splitPhotosAndFolders(rootItems.value);
   folderIdsQueue.push(...rootFolders.map((folder) => folder.id));
   allPhotos.push(...rootPhotos);
 
   // get items in each sub folder recursively
   while (folderIdsQueue.length > 0 && folderIdsQueue.length < limit) {
-    const { photos, folders } = await getFolderItemsFromId(
+    const { otherItems, folders } = await getFolderItemsFromId(
       accessToken,
       folderIdsQueue.shift()!
     );
     folderIdsQueue.push(...folders.map((folder) => folder.id));
-    allPhotos.push(...photos);
+    allPhotos.push(...otherItems);
   }
 
   return allPhotos;
@@ -45,7 +48,7 @@ export async function getGPSFromAllPhotos(
 
 export const OneDrivePhotosMetadata = () => {
   const { instance, accounts } = useMsal();
-  const [allPhotos, setAllPhotos] = useState<Photo[]>([]);
+  const [allPhotos, setAllPhotos] = useState<OneDriveItem[]>([]);
 
   async function ButtonGetGPSInfoFromAllPhotos(limit: number = 1000) {
     const accessToken = await getAccessToken(
@@ -72,14 +75,14 @@ export const OneDrivePhotosMetadata = () => {
 };
 
 interface AllPhotosProps {
-  allPhotos: Photo[];
+  allPhotos: OneDriveItem[];
 }
 
 const OneDrivePhotosMetadataList = (props: AllPhotosProps) => {
   return (
     <div id="profile-div">
       <h5>Photos</h5>
-      {props.allPhotos.map((photo: Photo, index: number) => {
+      {props.allPhotos.map((photo: OneDriveItem, index: number) => {
         return (
           <div key={index}>
             <p>
