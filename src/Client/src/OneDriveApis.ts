@@ -1,5 +1,3 @@
-import { graphConfig } from './authConfig';
-
 export async function getPhotosFolderItems(accessToken: string) {
   const headers = new Headers();
   const bearer = `Bearer ${accessToken}`;
@@ -11,11 +9,11 @@ export async function getPhotosFolderItems(accessToken: string) {
     headers: headers,
   };
 
-  return fetch(graphConfig.graphOneDrivePhotosFolderChildrenEndpoint, options)
-    .then((response) => {
-      return response.json();
-    })
-    .catch((error) => console.log(error));
+  const response = await fetch(
+    'https://graph.microsoft.com/v1.0/me/drive/root:/Photos:/children',
+    options
+  );
+  return await response.json();
 }
 
 export async function graphGetFolderItemsFromId(
@@ -32,15 +30,9 @@ export async function graphGetFolderItemsFromId(
     headers: headers,
   };
 
-  const endpoint = graphConfig.graphOneDriveFolderIdChildrenEndpoint.replace(
-    '{folderId}',
-    folderId
+  const response = await fetch(
+    `https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children`,
+    options
   );
-  console.warn('graphGetFolderItemsFromId', endpoint);
-
-  return fetch(endpoint, options)
-    .then((response) => {
-      return response.json();
-    })
-    .catch((error) => console.log(error));
+  return await response.json();
 }

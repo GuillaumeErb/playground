@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import * as atlas from 'azure-maps-control';
 import { AuthenticationType } from 'azure-maps-control';
 import { useMsal } from '@azure/msal-react';
-import { getAccessToken, TENANT_ID } from './authConfig';
+import { getAccessToken, TENANT_ID } from './Authentication';
 
 export const AzureMap = () => {
   const mapRef = useRef(null);

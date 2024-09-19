@@ -1,10 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './index.css';
 import App from './App';
 import { MsalProvider } from '@azure/msal-react';
 import { PublicClientApplication } from '@azure/msal-browser';
-import { msalConfig } from './authConfig';
+import { msalConfig } from './Authentication';
 import { BrowserRouter } from 'react-router-dom';
 
 const container = document.getElementById('root');

@@ -11,6 +11,8 @@ import {
 import { makeStyles, tokens } from '@fluentui/react-components';
 import {
   bundleIcon,
+  ImageGlobe20Filled,
+  ImageGlobe20Regular,
   MountainLocationBottom20Filled,
   MountainLocationBottom20Regular,
   Person20Filled,
@@ -57,6 +59,8 @@ const WeatherPartlyCloudyDay = bundleIcon(
   WeatherPartlyCloudyDay20Filled
 );
 
+const ImageGlobe = bundleIcon(ImageGlobe20Regular, ImageGlobe20Filled);
+
 export const Navigation = () => {
   const styles = useStyles();
 
@@ -76,10 +80,7 @@ export const Navigation = () => {
       <NavDrawer
         defaultSelectedValue="1"
         open={isOpen}
-        onNavItemSelect={(
-          value: NavItemValue,
-          categoryValue?: NavItemValue
-        ) => {
+        onNavItemSelect={(_: NavItemValue, categoryValue?: NavItemValue) => {
           navigate((categoryValue as { value: string }).value);
           setIsOpen(false);
         }}
@@ -90,8 +91,8 @@ export const Navigation = () => {
           <NavItem icon={<MountainLocationBottom />} value="heatmap">
             Image Map
           </NavItem>
-          <NavItem icon={<Person />} value="profile-content">
-            Profile
+          <NavItem icon={<ImageGlobe />} value="photos-metadata">
+            Photos Metadata
           </NavItem>
           <NavItem icon={<WeatherPartlyCloudyDay />} value="weather-forecast">
             Weather Forecast
