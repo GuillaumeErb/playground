@@ -1,12 +1,19 @@
 import React, { useEffect, useRef } from 'react';
 import * as atlas from 'azure-maps-control';
 import { AuthenticationType } from 'azure-maps-control';
+import { useMsal } from '@azure/msal-react';
+import { getAccessToken, TENANT_ID } from './Authentication';
 
 export const AzureMap = () => {
   const mapRef = useRef(null);
+  const { instance, accounts } = useMsal();
 
   useEffect(() => {
     if (!mapRef.current) {
+      return;
+    }
+
+    if (instance === null) {
       return;
     }
 
@@ -15,13 +22,21 @@ export const AzureMap = () => {
       zoom: 12,
       view: 'Auto',
       authOptions: {
-        authType: AuthenticationType.subscriptionKey,
-        subscriptionKey: process.env.REACT_APP_AZURE_MAPS_KEY,
+        authType: AuthenticationType.anonymous,
+        getToken: (resolve, reject, _) =>
+          getAccessToken(
+            instance,
+            ['https://atlas.microsoft.com/user_impersonation'],
+            accounts[0],
+            'https://login.microsoftonline.com/' + TENANT_ID
+          )
+            .then((accessToken: string) => resolve(accessToken))
+            .catch((e) => reject(e)),
       },
     });
 
     return () => map.dispose();
-  }, [mapRef.current]);
+  }, [mapRef.current, instance === null]);
 
-  return <div style={{ height: '500px' }} ref={mapRef} />;
+  return <div style={{ height: '90%', width: '90%' }} ref={mapRef} />;
 };

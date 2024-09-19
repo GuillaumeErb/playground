@@ -24,3 +24,17 @@ export function isFolderItem(item: OneDriveItem): item is Folder {
 
 export type FolderContents = { photos: Photo[]; folders: Folder[] };
 
+export const splitPhotosAndFolders = (
+  items: OneDriveItem[]
+): FolderContents => {
+  const photos: Photo[] = [];
+  const folders: Folder[] = [];
+  for (const item of items) {
+    if (isFolderItem(item)) {
+      folders.push(item);
+    } else {
+      photos.push(item);
+    }
+  }
+  return { photos, folders };
+};

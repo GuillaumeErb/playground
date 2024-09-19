@@ -10,9 +10,9 @@ import {
   MenuTrigger,
   MenuList,
   MenuItem,
-  Button,
   MenuPopover,
 } from '@fluentui/react-components';
+import { Navigation } from './Navigation';
 
 const useStyles = makeStyles({
   root: {
@@ -27,6 +27,15 @@ const useStyles = makeStyles({
   appName: {
     fontSize: '20px',
     fontWeight: 'bold',
+  },
+  leftSection: {
+    position: 'absolute', // Keep the navigation on the far left
+    left: '15px',
+    display: 'flex',
+    alignItems: 'center',
+    '> *:not(:last-child)': {
+      marginLeft: '10px',
+    },
   },
   rightSection: {
     position: 'absolute', // Keep the user controls on the far right
@@ -69,6 +78,10 @@ export const TopBar = () => {
   };
   return (
     <div className={styles.root}>
+      <div className={styles.leftSection}>
+        <Navigation />
+      </div>
+
       {/* App Name */}
       <div className={styles.appName}>Playground</div>
 
