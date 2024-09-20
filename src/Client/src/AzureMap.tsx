@@ -6,6 +6,7 @@ import { getGPSFromAllPhotos } from './OneDrivePhotosMetadata';
 import { AccountInfo, IPublicClientApplication } from '@azure/msal-browser';
 import { OneDriveItem } from './OneDriveItem';
 import { Button, Field, ProgressBar } from '@fluentui/react-components';
+import { Gallery, GalleryProps } from './Gallery';
 
 function getDatasourceFromPhotos(photos: OneDriveItem[]) {
   const datasource = new atlas.source.DataSource(undefined, {
@@ -29,6 +30,21 @@ function getDatasourceFromPhotos(photos: OneDriveItem[]) {
   return datasource;
 }
 
+function getPhotosInBounds(
+  photos: OneDriveItem[],
+  bounds: atlas.data.BoundingBox // of the form [xMin, yMin, xMax, yMax]
+) {
+  return photos.filter((photo) => {
+    return (
+      photo.location !== undefined &&
+      bounds[0] <= photo.location.longitude &&
+      photo.location.longitude <= bounds[2] &&
+      bounds[1] <= photo.location.latitude &&
+      photo.location.latitude <= bounds[3]
+    );
+  });
+}
+
 const getAllPhotos = async (
   instance: IPublicClientApplication,
   account: AccountInfo,
@@ -37,7 +53,6 @@ const getAllPhotos = async (
   const accessToken = await getAccessToken(instance, ['Files.Read'], account);
   const allPhotos = await getGPSFromAllPhotos(
     accessToken,
-    undefined,
     setCurrentPhotosCount
   );
   return allPhotos;
@@ -53,6 +68,9 @@ export const AzureMap = () => {
   const [currentPhotosCount, setCurrentPhotosCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [map, setMap] = useState<atlas.Map | null>(null);
+  const [gallery, setGallery] = useState<GalleryProps['images']>([]);
+  const [mapBoundingBox, setMapBoundingBox] =
+    useState<atlas.data.BoundingBox | null>(null);
 
   useEffect(() => {
     if (!mapRef.current) {
@@ -105,13 +123,41 @@ export const AzureMap = () => {
       },
       showFeedbackLink: false,
       showLogo: false,
+      enableAccessibility: false,
     };
     const map = new atlas.Map(mapRef.current, mapOptions);
     addGPSHeatMapToMap(map);
+    map.events.add('moveend', function () {
+      setMapBoundingBox(map.getCamera().bounds ?? null);
+    });
+    map.events.add('zoomend', function () {
+      setMapBoundingBox(map.getCamera().bounds ?? null);
+    });
     setMap(map);
 
     return () => map.dispose();
   }, [mapRef.current, instance === null, oneDrivePhotosMetadata === null]);
+
+  useEffect(() => {
+    const photosInBound = getPhotosInBounds(
+      oneDrivePhotosMetadata ?? [],
+      mapBoundingBox ?? []
+    );
+    console.log(
+      'PhotosInBound',
+      photosInBound.map((x) => x.name)
+    );
+    setGallery(
+      photosInBound
+        .slice(0, 10)
+        .filter((photo) => photo['@microsoft.graph.downloadUrl'] !== undefined)
+        .map((photo) => ({
+          key: photo.id,
+          url: photo['@microsoft.graph.downloadUrl']!,
+          name: photo.name,
+        }))
+    );
+  }, [mapBoundingBox]);
 
   console.log('MapRef', mapRef);
   console.log('Camera', map?.getCamera());
@@ -146,10 +192,16 @@ export const AzureMap = () => {
     <>
       <LoadOneDrivePhotosMetadataButton />
       <div
-        style={{ position: 'relative', height: '700px', width: '100%' }}
+        style={{
+          position: 'relative',
+          height: '400px',
+          width: '100%',
+          marginBottom: '30px',
+        }}
         ref={mapRef}
         hidden={oneDrivePhotosMetadata === null}
       />
+      <Gallery images={gallery} />
     </>
   );
 };

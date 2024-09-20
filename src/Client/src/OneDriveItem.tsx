@@ -4,6 +4,7 @@ export interface OneDriveItem {
   name: string;
   folder?: OneDriveFolder;
   location?: OneDriveGeoCoordinates;
+  '@microsoft.graph.downloadUrl'?: string;
 }
 
 export interface OneDriveFolder {

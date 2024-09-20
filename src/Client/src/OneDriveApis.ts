@@ -15,7 +15,9 @@ export async function getPhotosFolderItems(
   };
 
   const response = await fetch(
-    'https://graph.microsoft.com/v1.0/me/drive/root:/Photos:/children?$select=id,name,folder,location',
+    'https://graph.microsoft.com/v1.0/me/drive/root:/Photos:/children',
+    //?$select=id,name,folder,location,@microsoft.graph.downloadUrl
+
     options
   );
   const jsonResponse = await response.json();
@@ -37,7 +39,8 @@ export async function graphGetFolderItemsFromId(
   };
 
   const response = await fetch(
-    `https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children?$select=id,name,folder,location`,
+    `https://graph.microsoft.com/v1.0/me/drive/items/${folderId}/children`,
+    //?$select=id,name,folder,location,@microsoft.graph.downloadUrl
     options
   );
 

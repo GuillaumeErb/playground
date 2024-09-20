@@ -22,7 +22,6 @@ export async function getFolderItemsFromId(
 
 export async function getGPSFromAllPhotos(
   accessToken: string,
-  limit: number | undefined,
   setCurrentPhotosCount: (count: number) => void
 ) {
   const rootItems = await getPhotosFolderItems(accessToken);
@@ -33,7 +32,6 @@ export async function getGPSFromAllPhotos(
 
   return getGPSFromAllPhotosInternal(
     accessToken,
-    limit,
     rootFolderContent.folders.map((folder) => folder.id),
     rootFolderContent.otherItems,
     setCurrentPhotosCount
@@ -42,15 +40,11 @@ export async function getGPSFromAllPhotos(
 
 export async function getGPSFromAllPhotosInternal(
   accessToken: string,
-  limit: number | undefined,
   folderIds: string[],
   oneDriveItemsAccumulator: OneDriveItem[],
   setCurrentPhotosCount: (count: number) => void
 ) {
-  if (
-    folderIds.length === 0 ||
-    (limit !== undefined && oneDriveItemsAccumulator.length >= limit)
-  ) {
+  if (folderIds.length === 0 || oneDriveItemsAccumulator.length >= 100) {
     return oneDriveItemsAccumulator;
   }
 
@@ -66,7 +60,6 @@ export async function getGPSFromAllPhotosInternal(
 
   return getGPSFromAllPhotosInternal(
     accessToken,
-    limit,
     newFolderIds,
     oneDriveItemsAccumulator,
     setCurrentPhotosCount
@@ -77,17 +70,13 @@ export const OneDrivePhotosMetadata = () => {
   const { instance, accounts } = useMsal();
   const [allPhotos, setAllPhotos] = useState<OneDriveItem[]>([]);
 
-  async function ButtonGetGPSInfoFromAllPhotos(limit: number | undefined) {
+  async function ButtonGetGPSInfoFromAllPhotos() {
     const accessToken = await getAccessToken(
       instance,
       ['Files.Read'],
       accounts[0]
     );
-    const allPhotosGPS = await getGPSFromAllPhotos(
-      accessToken,
-      limit,
-      () => {}
-    );
+    const allPhotosGPS = await getGPSFromAllPhotos(accessToken, () => {});
     setAllPhotos(allPhotosGPS);
   }
 
@@ -97,7 +86,7 @@ export const OneDrivePhotosMetadata = () => {
       {allPhotos.length ? (
         <OneDrivePhotosMetadataList allPhotos={allPhotos} />
       ) : (
-        <Button onClick={() => ButtonGetGPSInfoFromAllPhotos(undefined)}>
+        <Button onClick={() => ButtonGetGPSInfoFromAllPhotos()}>
           Get GPS info from all photos
         </Button>
       )}
