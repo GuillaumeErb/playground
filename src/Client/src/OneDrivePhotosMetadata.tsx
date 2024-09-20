@@ -22,41 +22,72 @@ export async function getFolderItemsFromId(
 
 export async function getGPSFromAllPhotos(
   accessToken: string,
-  limit: number = 1000
+  limit: number | undefined,
+  setCurrentPhotosCount: (count: number) => void
 ) {
-  const folderIdsQueue: string[] = [];
-  const allPhotos: OneDriveItem[] = [];
-
   const rootItems = await getPhotosFolderItems(accessToken);
-  const { otherItems: rootPhotos, folders: rootFolders } =
-    splitPhotosAndFolders(rootItems.value);
-  folderIdsQueue.push(...rootFolders.map((folder) => folder.id));
-  allPhotos.push(...rootPhotos);
+  const rootFolderContent: FolderContent = splitPhotosAndFolders(
+    rootItems.value
+  );
+  setCurrentPhotosCount(rootFolderContent.otherItems.length);
 
-  // get items in each sub folder recursively
-  while (folderIdsQueue.length > 0 && folderIdsQueue.length < limit) {
-    const { otherItems, folders } = await getFolderItemsFromId(
-      accessToken,
-      folderIdsQueue.shift()!
-    );
-    folderIdsQueue.push(...folders.map((folder) => folder.id));
-    allPhotos.push(...otherItems);
+  return getGPSFromAllPhotosInternal(
+    accessToken,
+    limit,
+    rootFolderContent.folders.map((folder) => folder.id),
+    rootFolderContent.otherItems,
+    setCurrentPhotosCount
+  );
+}
+
+export async function getGPSFromAllPhotosInternal(
+  accessToken: string,
+  limit: number | undefined,
+  folderIds: string[],
+  oneDriveItemsAccumulator: OneDriveItem[],
+  setCurrentPhotosCount: (count: number) => void
+) {
+  if (
+    folderIds.length === 0 ||
+    (limit !== undefined && oneDriveItemsAccumulator.length >= limit)
+  ) {
+    return oneDriveItemsAccumulator;
   }
 
-  return allPhotos;
+  const newFolderIds: string[] = [];
+  await Promise.all(
+    folderIds.map(async (folderId) => {
+      const folderContent = await getFolderItemsFromId(accessToken, folderId);
+      newFolderIds.push(...folderContent.folders.map((folder) => folder.id));
+      oneDriveItemsAccumulator.push(...folderContent.otherItems);
+      setCurrentPhotosCount(oneDriveItemsAccumulator.length);
+    })
+  );
+
+  return getGPSFromAllPhotosInternal(
+    accessToken,
+    limit,
+    newFolderIds,
+    oneDriveItemsAccumulator,
+    setCurrentPhotosCount
+  );
 }
 
 export const OneDrivePhotosMetadata = () => {
   const { instance, accounts } = useMsal();
   const [allPhotos, setAllPhotos] = useState<OneDriveItem[]>([]);
 
-  async function ButtonGetGPSInfoFromAllPhotos(limit: number = 1000) {
+  async function ButtonGetGPSInfoFromAllPhotos(limit: number | undefined) {
     const accessToken = await getAccessToken(
       instance,
       ['Files.Read'],
       accounts[0]
     );
-    const allPhotosGPS = await getGPSFromAllPhotos(accessToken, limit);
+    const allPhotosGPS = await getGPSFromAllPhotos(
+      accessToken,
+      limit,
+      () => {}
+    );
     setAllPhotos(allPhotosGPS);
   }
 
@@ -66,7 +97,7 @@ export const OneDrivePhotosMetadata = () => {
       {allPhotos.length ? (
         <OneDrivePhotosMetadataList allPhotos={allPhotos} />
       ) : (
-        <Button onClick={() => ButtonGetGPSInfoFromAllPhotos()}>
+        <Button onClick={() => ButtonGetGPSInfoFromAllPhotos(undefined)}>
           Get GPS info from all photos
         </Button>
       )}
