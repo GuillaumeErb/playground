@@ -4,7 +4,7 @@ import Backdrop from './Backdrop';
 function BackdropIntegration() {
   return (
     <div>
-      <Backdrop></Backdrop>
+      <Backdrop title={'13698 photos'} minimized={'derpitiiii'}></Backdrop>
     </div>
   );
 }
