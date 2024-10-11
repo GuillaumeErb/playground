@@ -17,6 +17,8 @@ import {
   MountainLocationBottom20Regular,
   WeatherPartlyCloudyDay20Filled,
   WeatherPartlyCloudyDay20Regular,
+  Wrench20Filled,
+  Wrench20Regular,
 } from '@fluentui/react-icons';
 import { useNavigate } from 'react-router-dom';
 
@@ -56,12 +58,16 @@ const WeatherPartlyCloudyDay = bundleIcon(
   WeatherPartlyCloudyDay20Filled
 );
 
+const Wrench = bundleIcon(Wrench20Regular, Wrench20Filled);
+
 const ImageGlobe = bundleIcon(ImageGlobe20Regular, ImageGlobe20Filled);
 
 export const Navigation = () => {
   const styles = useStyles();
 
-  const [isOpen, setIsOpen] = React.useState(true);
+  const [isOpen, setIsOpen] = React.useState(false);
+  const [selectedValue, setSelectedValue] =
+    React.useState('backdrop-iteration');
   const navigate = useNavigate();
 
   const renderHamburger = () => {
@@ -75,12 +81,14 @@ export const Navigation = () => {
   return (
     <div className={styles.root}>
       <NavDrawer
-        defaultSelectedValue="1"
         open={isOpen}
         onNavItemSelect={(_: NavItemValue, categoryValue?: NavItemValue) => {
-          navigate((categoryValue as { value: string }).value);
+          const newSelectedValue = (categoryValue as { value: string }).value;
+          setSelectedValue(newSelectedValue);
+          navigate(newSelectedValue);
           setIsOpen(false);
         }}
+        selectedValue={selectedValue}
       >
         <NavDrawerHeader>{renderHamburger()}</NavDrawerHeader>
 
@@ -93,6 +101,9 @@ export const Navigation = () => {
           </NavItem>
           <NavItem icon={<WeatherPartlyCloudyDay />} value="weather-forecast">
             Weather Forecast
+          </NavItem>
+          <NavItem icon={<Wrench />} value="backdrop-iteration">
+            Backdrop Iteration
           </NavItem>
         </NavDrawerBody>
       </NavDrawer>

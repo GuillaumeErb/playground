@@ -6,16 +6,14 @@ import { useIsAuthenticated } from '@azure/msal-react';
 export const PageLayout = () => {
   const isAuthenticated = useIsAuthenticated();
 
+  console.warn('PageLayout', isAuthenticated);
+
   return (
     <>
       <TopBar />
       <br />
       <br />
-      {isAuthenticated || window.location.pathname === '/' ? (
-        <Outlet />
-      ) : (
-        <Navigate to="/" replace />
-      )}
+      {isAuthenticated ? <Outlet /> : <Navigate to="/" replace />}
     </>
   );
 };

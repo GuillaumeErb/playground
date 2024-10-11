@@ -5,8 +5,22 @@ import { getAccessToken } from './Authentication';
 import { getGPSFromAllPhotos } from './OneDrivePhotosMetadata';
 import { AccountInfo, IPublicClientApplication } from '@azure/msal-browser';
 import { OneDriveItem } from './OneDriveItem';
-import { Button, Field, ProgressBar } from '@fluentui/react-components';
+import {
+  Button,
+  Field,
+  makeStyles,
+  ProgressBar,
+} from '@fluentui/react-components';
 import { Gallery, GalleryProps } from './Gallery';
+
+const useStyles = makeStyles({
+  map: {
+    position: 'relative',
+    height: '400px',
+    width: '100%',
+    marginBottom: '30px',
+  },
+});
 
 function getDatasourceFromPhotos(photos: OneDriveItem[]) {
   const datasource = new atlas.source.DataSource(undefined, {
@@ -61,6 +75,8 @@ const getAllPhotos = async (
 export const AzureMap = () => {
   const mapRef = useRef(null);
   const { instance, accounts } = useMsal();
+
+  const styles = useStyles();
 
   const [oneDrivePhotosMetadata, setOneDrivePhotosMetadata] = useState<
     OneDriveItem[] | null
@@ -149,8 +165,10 @@ export const AzureMap = () => {
     );
     setGallery(
       photosInBound
-        .slice(0, 10)
         .filter((photo) => photo['@microsoft.graph.downloadUrl'] !== undefined)
+        .filter((photo) => !photo.name.endsWith('.mov'))
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 10)
         .map((photo) => ({
           key: photo.id,
           url: photo['@microsoft.graph.downloadUrl']!,
@@ -192,12 +210,7 @@ export const AzureMap = () => {
     <>
       <LoadOneDrivePhotosMetadataButton />
       <div
-        style={{
-          position: 'relative',
-          height: '400px',
-          width: '100%',
-          marginBottom: '30px',
-        }}
+        className={styles.map}
         ref={mapRef}
         hidden={oneDrivePhotosMetadata === null}
       />

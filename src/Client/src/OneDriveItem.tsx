@@ -22,6 +22,16 @@ export interface FolderContent {
   otherItems: OneDriveItem[];
 }
 
+export interface OneDriveThumbnails {
+  medium: OneDriveThumbnail;
+}
+
+export interface OneDriveThumbnail {
+  height: number;
+  url: string;
+  width: number;
+}
+
 export const splitPhotosAndFolders = (items: OneDriveItem[]): FolderContent => {
   const otherItems: OneDriveItem[] = [];
   const folders: OneDriveItem[] = [];

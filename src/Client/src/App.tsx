@@ -6,6 +6,7 @@ import { FluentProvider, webLightTheme } from '@fluentui/react-components';
 import { Link, Route, Routes } from 'react-router-dom';
 import { OneDrivePhotosMetadata } from './OneDrivePhotosMetadata';
 import { PageLayout } from './AppShell/PageLayout';
+import BackdropIntegration from './BackdropIteration';
 
 function Home() {
   return (
@@ -35,6 +36,7 @@ export default function App() {
           <Route path="heatmap" element={<AzureMap />} />
           <Route path="photos-metadata" element={<OneDrivePhotosMetadata />} />
           <Route path="weather-forecast" element={<WeatherForecast />} />
+          <Route path="backdrop-iteration" element={<BackdropIntegration />} />
           <Route path="*" element={<NoMatch />} />
         </Route>
       </Routes>

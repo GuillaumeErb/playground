@@ -1,5 +1,5 @@
 import { ODataValueArray } from './ODataTypes';
-import { OneDriveItem } from './OneDriveItem';
+import { OneDriveItem, OneDriveThumbnails } from './OneDriveItem';
 
 export async function getPhotosFolderItems(
   accessToken: string
@@ -46,4 +46,28 @@ export async function graphGetFolderItemsFromId(
 
   const jsonResponse = await response.json();
   return jsonResponse as ODataValueArray<OneDriveItem>;
+}
+
+export async function graphGetThumbnailsFromId(
+  accessToken: string,
+  itemId: string
+): Promise<ODataValueArray<OneDriveThumbnails>> {
+  const headers = new Headers();
+  const bearer = `Bearer ${accessToken}`;
+
+  headers.append('Authorization', bearer);
+
+  const options = {
+    method: 'GET',
+    headers: headers,
+  };
+
+  const response = await fetch(
+    `https://graph.microsoft.com/v1.0/me/drive/items/${itemId}/thumbnails$select=medium`,
+    //?$select=id,name,folder,location,@microsoft.graph.downloadUrl
+    options
+  );
+
+  const jsonResponse = await response.json();
+  return jsonResponse as ODataValueArray<OneDriveThumbnails>;
 }

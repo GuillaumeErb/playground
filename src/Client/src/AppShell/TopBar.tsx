@@ -79,7 +79,7 @@ export const TopBar = () => {
   return (
     <div className={styles.root}>
       <div className={styles.leftSection}>
-        <Navigation />
+        {isAuthenticated && <Navigation />}
       </div>
 
       {/* App Name */}
